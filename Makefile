@@ -1,17 +1,15 @@
-CC = gcc -g -O2
-CXX = g++ -g -O2
-CFLAGS =
-LIBS = -lnfc
-OBJS = scanner.o
+all: controller scanner
 
-all: test
+scanner: scanner/scanner
 
-scanner.o: scanner.c scanner.h
-	$(CC) -c scanner.c -o scanner.o
+controller: controller/controller
 
-test: test.cc scanner.o
-	$(CXX) test.cc -o test $(OBJS) $(LIBS)
+scanner/scanner:
+	$(MAKE) -C scanner/
+
+controller/controller:
+	$(MAKE) -C controller/
 
 clean:
-	rm -f *.o
-	rm -f test
+	$(MAKE) -C scanner/ clean
+	$(MAKE) -C controller/ clean

@@ -5,7 +5,7 @@
 #include <nfc/nfc.h>
 
 #include "common.h"
-#include "scanner.h"
+#include "scan.h"
 
 nfc_device *pnd;
 nfc_target nt;
@@ -93,13 +93,15 @@ uint32_t wait_new_id() {
 		first_call = false;
 		return curr_id;
 	} else {
+		uint32_t id = ENOCARDPRESENT;
 		while (true && !exiting) {
-			uint32_t id = get_current_id();
+			id = get_current_id();
 			usleep(10 * 1000);
 			if (id != ENOCARDPRESENT && id != curr_id) {
 				curr_id = id;
 				return id;
 			}
 		}
+		return id;
 	}
 }
