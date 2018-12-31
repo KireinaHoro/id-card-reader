@@ -52,12 +52,12 @@ int main() {
     ia >> catalog;
   }
 
-  std::cout << "チェックインを開始します。Ctrl-Dを押すと終了します。" << std::endl;
+  std::cout << "チェックインを開始します。Ctrl-Cを押すと終了します。"
+            << std::endl;
   std::cout << "生徒カードをスキャンしてください。" << std::endl;
 
   while (true) {
     TagID id = s.scan();
-    Record rec = catalog[id];
     MINOR_SEP
     std::cout << "カード番号：";
     {
@@ -66,14 +66,20 @@ int main() {
       std::cout << std::hex << std::setw(8) << std::setfill('0');
       std::cout << id << std::endl;
     }
+    try {
+      Record rec = catalog.at(id);
 
-    std::cout << "名前：" << rec.name << std::endl;
-    std::cout << "性別：" << rec.sex << std::endl;
-    std::cout << "登録時間：";
-    std::time_t register_time = std::chrono::system_clock::to_time_t(rec.register_time);
-    std::cout << std::ctime(&register_time);
-    std::cout << "生徒番号：" << rec.student_id << std::endl;
-    sleep(5);
+      std::cout << "名前：" << rec.name << std::endl;
+      std::cout << "性別：" << rec.sex << std::endl;
+      std::cout << "登録時間：";
+      std::time_t register_time =
+          std::chrono::system_clock::to_time_t(rec.register_time);
+      std::cout << std::ctime(&register_time);
+      std::cout << "生徒番号：" << rec.student_id << std::endl;
+    } catch (std::out_of_range &) {
+      std::cout << "未登録の生徒カードです。" << std::endl;
+      continue;
+    }
   }
 
   return EXIT_SUCCESS;
