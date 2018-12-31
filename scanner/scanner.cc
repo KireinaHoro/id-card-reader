@@ -20,7 +20,6 @@ int main(int argc, char **argv) try {
 
   s1.bind(addr);
   std::cout << "bind succeeded" << std::endl;
-
   s1.send(READY);
 
   nnxx::message cmd;
@@ -32,7 +31,10 @@ int main(int argc, char **argv) try {
       uint32_t id = wait_new_id();
       std::cout << "Sending id=" << id << " to controller" << std::endl;
       s1.send(from_str(card + ' ' + std::to_string(id)));
+    } else if (cmd == CLOSE) {
+	    s1.send(READY);
     }
+
   }
 
 } catch (const std::system_error &e) {

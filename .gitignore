@@ -1,2 +1,5 @@
 test
 *.o
+**/*.o
+controller/build/*
+scanner/scanner
