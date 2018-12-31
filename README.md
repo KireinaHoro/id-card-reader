@@ -9,3 +9,23 @@ The reader is split into two parts: a scanner (the device with NFC reader) and a
    - `nanomsgxx`
  - scanner:
    - `libnfc`
+ - controller:
+   - Boost
+
+## Build Instructions
+
+Scanner:
+
+```
+cd scanner
+make
+```
+
+Controller:
+
+```
+cd controller
+make build && cd build
+cmake ..
+make
+```
