@@ -17,6 +17,7 @@ void close_device();
 
 uint32_t get_current_id();
 uint32_t wait_new_id();
+void clear_state();
 
 #ifdef __cplusplus
 }

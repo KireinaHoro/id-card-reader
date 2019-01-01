@@ -15,11 +15,13 @@ inline std::string to_str(const nnxx::message &a) {
   return result;
 }
 
+const std::string init = "init";
 const std::string ready = "ready";
 const std::string waitnew = "waitnew";
 const std::string card = "card";
 const std::string close = "close";
 
+const nnxx::message INIT = from_str(init);
 const nnxx::message READY = from_str(ready);
 const nnxx::message WAITNEW = from_str(waitnew);
 const nnxx::message CARD = from_str(card);
