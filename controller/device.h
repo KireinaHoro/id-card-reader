@@ -21,13 +21,18 @@ public:
   Scanner(const std::string &a) {
     s.connect(a.c_str());
     nnxx::message status;
+    s.send(INIT);
     while ((status = s.recv()) && s != READY)
       ;
   }
 
-  ~Scanner() { s.close(); }
+  ~Scanner() {
+    s.send(CLOSE);
+    s.close();
+  }
 
   TagID scan() {
+    s.send(WAITNEW);
     auto response = to_str(s.recv());
     assert(response.find(card) == 0);
     auto id_ref = response.find(' ');

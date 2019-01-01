@@ -1,8 +1,10 @@
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/io/ios_state.hpp>
 
+#include <atomic>
 #include <chrono>
 #include <cstdint>
+#include <cstdio>
 #include <cstdlib>
 #include <fstream>
 #include <iomanip>
@@ -10,7 +12,8 @@
 #include <map>
 #include <string>
 
-#include "unistd.h"
+#include <signal.h>
+#include <unistd.h>
 
 #include "device.h"
 #include "record.h"
@@ -29,7 +32,20 @@ using namespace nfc_scan;
 
 Catalog catalog;
 
+std::atomic<bool> exiting;
+
+void sigint_handler(int sig) { exiting.store(true); }
+
 int main() {
+  struct sigaction sa;
+  sa.sa_handler = sigint_handler;
+  sigemptyset(&sa.sa_mask);
+  sa.sa_flags = 0;
+  if (sigaction(SIGINT, &sa, nullptr) == -1) {
+    perror("sigaction");
+    return EXIT_FAILURE;
+  }
+
   std::cout << "会議チェックイン" << std::endl;
   MAJOR_SEP
 
@@ -57,16 +73,19 @@ int main() {
   std::cout << "生徒カードをスキャンしてください。" << std::endl;
 
   while (true) {
-    TagID id = s.scan();
-    MINOR_SEP
-    std::cout << "カード番号：";
-    {
-      boost::io::ios_flags_saver ifs(std::cout);
-      std::cout << "0x";
-      std::cout << std::hex << std::setw(8) << std::setfill('0');
-      std::cout << id << std::endl;
-    }
     try {
+      if (exiting.load()) {
+        break;
+      }
+      TagID id = s.scan();
+      MINOR_SEP
+      std::cout << "カード番号：";
+      {
+        boost::io::ios_flags_saver ifs(std::cout);
+        std::cout << "0x";
+        std::cout << std::hex << std::setw(8) << std::setfill('0');
+        std::cout << id << std::endl;
+      }
       Record rec = catalog.at(id);
 
       std::cout << "名前：" << rec.name << std::endl;
@@ -79,8 +98,13 @@ int main() {
     } catch (std::out_of_range &) {
       std::cout << "未登録の生徒カードです。" << std::endl;
       continue;
+    } catch (...) {
+      std::cout
+          << "また別のカードをスキャンして、スキャナーの状態を直してください。"
+          << std::endl;
     }
   }
+  std::cout << "チェックインを終了いたします。" << std::endl;
 
   return EXIT_SUCCESS;
 }
